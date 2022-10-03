@@ -1,0 +1,13 @@
+# Workspace
+.vscode
+
+# Dependency directory
+node_modules
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Ignore built ts & test artifacts
+__tests__/*/*
+lib/**/*
