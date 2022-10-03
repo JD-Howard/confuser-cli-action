@@ -31,7 +31,6 @@ jobs:
       - name: Get Builds Project
         shell: bash
         run: |
-          git config --global user.name ${{ github.actor }}
           git clone ssh://git@github.com/Someone/SomeBuildsRepo.git '${{ env.BUILDSREPO }}'
       - uses: actions/checkout@v3
         with:
@@ -57,6 +56,8 @@ jobs:
       - name: Save Artifacts
         if: steps.confuse-release.outcome == 'success'
         run: |
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name ${{ github.actor }}
           git -C "${{ env.BUILDSREPO }}" commit -a -m "Automated Workflow"
           git -C "${{ env.BUILDSREPO }}" push
 ```
