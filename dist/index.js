@@ -50,37 +50,43 @@ const exePath = `${localConfuserDir}\Confuser.CLI.exe`;
 const confuserExLatestUrl = 'https://github.com/mkaring/ConfuserEx/releases/latest';
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
+        let message = 'init';
         try {
-            const crproj = core.getInput('project-file');
+            const crproj = core.getInput('confuser-config');
+            message = `Could not find Confuser Configuration file at: ${crproj}`;
             if (!fs.statSync(crproj).isFile()) {
-                throw new Error(`Could not find Confuser Configuration file at: ${crproj}`);
+                throw new Error(message);
             }
+            message = `This action requires a windows based runs-on context`;
             if (proc.platform !== 'win32') {
-                throw new Error(`This action requires a windows based runs-on context`);
+                throw new Error(message);
             }
             fs.mkdirSync('./confuser-cli');
             const actualLatestTagUrl = yield (0, urlHandling_1.getUrlHeader)(confuserExLatestUrl, 'location');
             const targetTagUrl = actualLatestTagUrl.replace('/tag/', '/download/') + '/ConfuserEx-CLI.zip';
             const resolvedDownloadUrl = yield (0, urlHandling_1.getUrlHeader)(targetTagUrl, 'location');
             yield (0, urlHandling_1.downloadUrl)(resolvedDownloadUrl, localZipPath);
+            message = `Failed to download from: ${resolvedDownloadUrl}`;
             if (!fs.existsSync(localZipPath)) {
-                throw new Error(`Failed to download from: ${resolvedDownloadUrl}`);
+                throw new Error(message);
             }
             new adm_zip_1.default(localZipPath).getEntries().forEach(entry => {
                 fs.writeFileSync(`${localConfuserDir}/${entry.entryName}`, entry.getData());
             });
+            message = `Failed to extract cli.zip. File not found: ${exePath}`;
             if (!fs.existsSync(exePath)) {
-                throw new Error(`Failed to extract cli.zip. File not found: ${exePath}`);
+                throw new Error(message);
             }
             const args = ['-n', crproj];
             const result = yield exec.getExecOutput(exePath, args);
+            message = `Something went wrong executing the provided crproj configuration\n${result.stdout}\n${result.stderr}`;
             if (result.exitCode !== 0) {
-                throw new Error(`Something went wrong executing the provided crproj configuration\n${result.stdout}\n${result.stderr}`);
+                throw new Error(message);
             }
         }
         catch (error) {
             if (error instanceof Error) {
-                core.setFailed(error.message);
+                core.setFailed(`Progress: ${message}\nError: ${error.message}`);
             }
         }
     });
