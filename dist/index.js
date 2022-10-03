@@ -44,9 +44,9 @@ const core = __importStar(__nccwpck_require__(186));
 const exec = __importStar(__nccwpck_require__(514));
 const adm_zip_1 = __importDefault(__nccwpck_require__(761));
 const urlHandling_1 = __nccwpck_require__(818);
-const localConfuserDir = './confuser-cli';
-const localZipPath = `${localConfuserDir}\cli.zip`;
-const exePath = `${localConfuserDir}\Confuser.CLI.exe`;
+const localConfuserDir = '.\\confuser-cli';
+const localZipPath = `${localConfuserDir}\\cli.zip`;
+const exePath = `${localConfuserDir}\\Confuser.CLI.exe`;
 const confuserExLatestUrl = 'https://github.com/mkaring/ConfuserEx/releases/latest';
 function run() {
     return __awaiter(this, void 0, void 0, function* () {

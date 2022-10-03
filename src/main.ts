@@ -5,9 +5,9 @@ import * as exec from '@actions/exec'
 import AdmZip from 'adm-zip'
 import {downloadUrl, getUrlHeader} from './urlHandling'
 
-const localConfuserDir = './confuser-cli'
-const localZipPath = `${localConfuserDir}\cli.zip`
-const exePath = `${localConfuserDir}\Confuser.CLI.exe`
+const localConfuserDir = '.\\confuser-cli'
+const localZipPath = `${localConfuserDir}\\cli.zip`
+const exePath = `${localConfuserDir}\\Confuser.CLI.exe`
 const confuserExLatestUrl = 'https://github.com/mkaring/ConfuserEx/releases/latest'
 
 async function run(): Promise<void> {
