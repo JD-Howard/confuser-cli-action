@@ -13,12 +13,14 @@ const confuserExLatestUrl = 'https://github.com/mkaring/ConfuserEx/releases/late
 async function run(): Promise<void> {
   let message = 'init';
   try {
-    const crproj = core.getInput('confuser-config')
-
-    message = `Could not find Confuser Configuration file at: ${crproj}`
-    if (!fs.statSync(crproj).isFile()) {
-      throw new Error(message)
-    }
+    const crprojs = core.getMultilineInput('confuser-configs')
+    
+    crprojs.forEach(crproj => {
+      message = `Could not find Confuser Configuration file at: ${crproj}`
+      if (!fs.statSync(crproj).isFile()) {
+        throw new Error(message)
+      }
+    })
 
     message = `This action requires a windows based runs-on context`;
     if (proc.platform !== 'win32') {
@@ -49,14 +51,17 @@ async function run(): Promise<void> {
       throw new Error(message)
     }
 
-    const args: Array<string> = ['-n', crproj]
+    crprojs.forEach(async (crproj) => {
+      const args: Array<string> = ['-n', crproj]
 
-    const result = await exec.getExecOutput(exePath, args)
-
-    message = `Something went wrong executing the provided crproj configuration\n${result.stdout}\n${result.stderr}`;
-    if (result.exitCode !== 0) {
-      throw new Error(message)
-    }
+      const result = await exec.getExecOutput(exePath, args)
+  
+      message = `Something went wrong executing the provided crproj configuration\n${result.stdout}\n${result.stderr}`;
+      if (result.exitCode !== 0) {
+        throw new Error(message)
+      }
+    })
+    
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(`Progress: ${message}\nError: ${error.message}`)

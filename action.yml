@@ -2,9 +2,9 @@ name: 'ConfuserEx Build Action'
 description: 'Automates the user of the ConfuserEX.CLI for GitHub Actions'
 author: 'Josh Howard'
 inputs:  
-  confuser-config:
+  confuser-configs:
     required: true
-    description: 'provide the full path to a *.crproj file'
+    description: 'provide the full path to *.crproj file(s)'
 runs:
   using: 'node16'
   main: 'dist/index.js'

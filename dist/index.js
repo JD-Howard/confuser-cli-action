@@ -52,11 +52,13 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         let message = 'init';
         try {
-            const crproj = core.getInput('confuser-config');
-            message = `Could not find Confuser Configuration file at: ${crproj}`;
-            if (!fs.statSync(crproj).isFile()) {
-                throw new Error(message);
-            }
+            const crprojs = core.getMultilineInput('confuser-configs');
+            crprojs.forEach(crproj => {
+                message = `Could not find Confuser Configuration file at: ${crproj}`;
+                if (!fs.statSync(crproj).isFile()) {
+                    throw new Error(message);
+                }
+            });
             message = `This action requires a windows based runs-on context`;
             if (proc.platform !== 'win32') {
                 throw new Error(message);
@@ -77,12 +79,14 @@ function run() {
             if (!fs.existsSync(exePath)) {
                 throw new Error(message);
             }
-            const args = ['-n', crproj];
-            const result = yield exec.getExecOutput(exePath, args);
-            message = `Something went wrong executing the provided crproj configuration\n${result.stdout}\n${result.stderr}`;
-            if (result.exitCode !== 0) {
-                throw new Error(message);
-            }
+            crprojs.forEach((crproj) => __awaiter(this, void 0, void 0, function* () {
+                const args = ['-n', crproj];
+                const result = yield exec.getExecOutput(exePath, args);
+                message = `Something went wrong executing the provided crproj configuration\n${result.stdout}\n${result.stderr}`;
+                if (result.exitCode !== 0) {
+                    throw new Error(message);
+                }
+            }));
         }
         catch (error) {
             if (error instanceof Error) {
