@@ -11,19 +11,18 @@ const exePath = `${localConfuserDir}\Confuser.CLI.exe`
 const confuserExLatestUrl = 'https://github.com/mkaring/ConfuserEx/releases/latest'
 
 async function run(): Promise<void> {
+  let message = 'init';
   try {
     const crproj = core.getInput('confuser-config')
 
+    message = `Could not find Confuser Configuration file at: ${crproj}`
     if (!fs.statSync(crproj).isFile()) {
-      throw new Error(
-        `Could not find Confuser Configuration file at: ${crproj}`
-      )
+      throw new Error(message)
     }
 
+    message = `This action requires a windows based runs-on context`;
     if (proc.platform !== 'win32') {
-      throw new Error(
-        `This action requires a windows based runs-on context`
-      )
+      throw new Error(message)
     }
 
     fs.mkdirSync('./confuser-cli')
@@ -33,10 +32,9 @@ async function run(): Promise<void> {
     const resolvedDownloadUrl = await getUrlHeader(targetTagUrl, 'location')
     await downloadUrl(resolvedDownloadUrl, localZipPath)
 
+    message = `Failed to download from: ${resolvedDownloadUrl}`
     if (!fs.existsSync(localZipPath)) {
-      throw new Error(
-        `Failed to download from: ${resolvedDownloadUrl}`
-      )
+      throw new Error(message)
     }
 
     new AdmZip(localZipPath).getEntries().forEach(entry => {
@@ -46,24 +44,22 @@ async function run(): Promise<void> {
       )
     })
 
+    message = `Failed to extract cli.zip. File not found: ${exePath}`;
     if (!fs.existsSync(exePath)) {
-      throw new Error(
-        `Failed to extract cli.zip. File not found: ${exePath}`
-      )
+      throw new Error(message)
     }
 
     const args: Array<string> = ['-n', crproj]
 
     const result = await exec.getExecOutput(exePath, args)
 
+    message = `Something went wrong executing the provided crproj configuration\n${result.stdout}\n${result.stderr}`;
     if (result.exitCode !== 0) {
-      throw new Error(
-        `Something went wrong executing the provided crproj configuration\n${result.stdout}\n${result.stderr}`
-      )
+      throw new Error(message)
     }
   } catch (error) {
     if (error instanceof Error) {
-      core.setFailed(error.message)
+      core.setFailed(`Progress: ${message}\nError: ${error.message}`)
     }
   }
 }
