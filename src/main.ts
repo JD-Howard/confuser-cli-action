@@ -13,7 +13,7 @@ const confuserExLatestUrl = 'https://github.com/mkaring/ConfuserEx/releases/late
 async function run(): Promise<void> {
   let message = 'init';
   try {
-    const crprojs = core.getMultilineInput('confuser-config')
+    const crprojs = core.getMultilineInput('confuser-config').map(x => x.replace(/^["']*|["']*$/g, ''));
     
     crprojs.forEach(crproj => {
       message = `Could not find Confuser Configuration file at: ${crproj}`

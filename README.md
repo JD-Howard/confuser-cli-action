@@ -6,7 +6,7 @@ This Action is expected to use `runs-on: windows-latest` because the ConfuserEx 
 
 
 ## Inputs
-`confuser-config` - *required* - A path to a fully functional *.crproj file. Make sure this configuration is fully tested outside of a GH Action workflow first.
+`confuser-config` - *required* - One or more paths to a fully functional *.crproj files. Make sure this configuration is fully tested outside of a GH Action workflow first.
 
 
 ## Example
@@ -20,8 +20,11 @@ jobs:
   MyProject-CI:
     runs-on: windows-latest
     env:
-      CSPROJ: ${{ github.workspace }}\MyProject\MyProject.csproj
-      CRPROJ: ${{ github.workspace }}\MyProject\MyProject.crproj
+      CSPROJ1: ${{ github.workspace }}\MyProject\MyProjectMain.csproj
+      CSPROJ2: ${{ github.workspace }}\MyProject\MyProjectSupport.csproj
+      CSPROJ3: ${{ github.workspace }}\MyProject\MyProjectTests.csproj
+      CRPROJ1: ${{ github.workspace }}\MyProject\MyProjectMain.crproj
+      CRPROJ2: ${{ github.workspace }}\MyProject\MyProjectSupport.crproj
       BUILDSREPO: ${{ github.workspace }}\Builds
     steps:
       - name: Set up Git SSH
@@ -41,18 +44,29 @@ jobs:
           dotnet-version: 6.0.x
       - name: Restore Dependencies
         run: |
-          dotnet restore "${{ env.CSPROJ }}"
+          dotnet restore "${{ env.CSPROJ1 }}"
+          dotnet restore "${{ env.CSPROJ2 }}"
+          dotnet restore "${{ env.CSPROJ3 }}"
       - name: Build All
         id: build-all
         run: |
-          dotnet build "${{ env.CSPROJ }}" --no-restore --configuration Debug
-          dotnet build "${{ env.CSPROJ }}" --no-restore --configuration Release
+          dotnet build "${{ env.CSPROJ1 }}" --no-restore --configuration Debug
+          dotnet build "${{ env.CSPROJ2 }}" --no-restore --configuration Debug
+          dotnet build "${{ env.CSPROJ3 }}" --no-restore --configuration Debug
+          dotnet build "${{ env.CSPROJ1 }}" --no-restore --configuration Release
+          dotnet build "${{ env.CSPROJ2 }}" --no-restore --configuration Release
+      - name: Test
+        id: run-tests
+        run: |
+          dotnet test "${{ env.CSPROJ3 }}" --logger "console;verbosity=normal" --no-build --no-restore --configuration Debug
       - name: ConfuserEx CLI Operation
         uses: JD-Howard/confuser-cli-action@main
         id: confuse-release
-        if: steps.build-all.outcome == 'success'
+        if: steps.build-all.outcome == 'success' && steps.run-tests.outcome == 'success'
         with:
-          confuser-config: ${{ env.CRPROJ }}
+          confuser-config: |
+            ${{ env.CRPROJ1 }}
+            ${{ env.CRPROJ2 }}
       - name: Save Artifacts
         if: steps.confuse-release.outcome == 'success'
         run: |

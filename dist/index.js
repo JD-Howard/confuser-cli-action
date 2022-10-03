@@ -52,7 +52,7 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         let message = 'init';
         try {
-            const crprojs = core.getMultilineInput('confuser-config');
+            const crprojs = core.getMultilineInput('confuser-config').map(x => x.replace(/^["']*|["']*$/g, ''));
             crprojs.forEach(crproj => {
                 message = `Could not find Confuser Configuration file at: ${crproj}`;
                 if (!fs.statSync(crproj).isFile()) {
