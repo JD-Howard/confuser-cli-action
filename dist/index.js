@@ -50,16 +50,17 @@ const exePath = `${localConfuserDir}\\Confuser.CLI.exe`;
 const confuserExLatestUrl = 'https://github.com/mkaring/ConfuserEx/releases/latest';
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        let message = 'init';
+        let message = 'Getting user Inputs';
         try {
-            const crprojs = core.getMultilineInput('confuser-config').map(x => x.replace(/^["']*|["']*$/g, ''));
+            const crprojs = core.getMultilineInput('confuser-config')
+                .map(x => x.replace(/^["']*|["']*$/g, ''));
             crprojs.forEach(crproj => {
                 message = `Could not find Confuser Configuration file at: ${crproj}`;
                 if (!fs.statSync(crproj).isFile()) {
                     throw new Error(message);
                 }
             });
-            message = `This action requires a windows based runs-on context`;
+            message = 'This action requires a windows based runs-on context';
             if (proc.platform !== 'win32') {
                 throw new Error(message);
             }
@@ -72,10 +73,10 @@ function run() {
             if (!fs.existsSync(localZipPath)) {
                 throw new Error(message);
             }
+            message = `Failed to extract cli.zip. File not found: ${exePath}`;
             new adm_zip_1.default(localZipPath).getEntries().forEach(entry => {
                 fs.writeFileSync(`${localConfuserDir}/${entry.entryName}`, entry.getData());
             });
-            message = `Failed to extract cli.zip. File not found: ${exePath}`;
             if (!fs.existsSync(exePath)) {
                 throw new Error(message);
             }
@@ -90,7 +91,12 @@ function run() {
         }
         catch (error) {
             if (error instanceof Error) {
-                core.setFailed(`Progress: ${message}\nError: ${error.message}`);
+                if (error.message === message) {
+                    core.setFailed(`ThrowMsg: ${message}`);
+                }
+                else {
+                    core.setFailed(`ManagedMsg: ${message}\nUnmanagedMsg: ${error.message}`);
+                }
             }
         }
     });

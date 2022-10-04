@@ -1,8 +1,8 @@
 {
   "name": "confuser-cli-action",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": false,
-  "description": "Defines a GitHub action for feeding a *.crpoj configuration into the Confuser.CLI",
+  "description": "GitHub action for executing a Confuser CLI *.crpoj configuration to obfuscate .net code",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -17,7 +17,10 @@
   "keywords": [
     "actions",
     "confuser",
-    "cli"
+    "obfuscate",
+    "obfuscator",
+    ".Net Framework",
+    "crproj"
   ],
   "author": "Josh Howard",
   "license": "MIT",

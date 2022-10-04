@@ -1,20 +1,22 @@
 # confuser-cli-action
-This Action downloads the latest ConfuserEx-CLI release and feeds a provided *.crproj file into it. The purpose of building this was to enhance our my build pipeline by building ready to release artifacts.
+This Action downloads the latest ConfuserEx-CLI release and feeds one or more provided *.crproj files into it. The purpose of building this was to enhance my build pipeline by building ready to release obfuscated artifacts.
 
 #### NOTE:
-This Action is expected to use `runs-on: windows-latest` because the ConfuserEx CLI is based on the .Net Framework 4.6
+This Action is expected to use `runs-on: windows-?` because the ConfuserEx CLI is built on the .Net Framework 4.6
 
 
-## Inputs
-`confuser-config` - *required* - One or more paths to a fully functional *.crproj files. Make sure this configuration is fully tested outside of a GH Action workflow first.
+## Required Input
+`confuser-config` - One or more paths to a fully functional *.crproj files. Make sure the configurations are fully tested outside of a GH Action workflow first.
 
 
 ## Example
-This is an example of how this could be used to save your confuser artifacts into another repo. Note that this example does assume you've got a private access token secret for some other repo that your building your releases into. However, GH Actions pretty much let you do anything. so there are lots of different ways and places the confuser artifacts could be stored.
+This is an example of how this could be used to save your confuser artifacts into another repo. Note that this example does assume you've got a secret with a private access token for some other repo that your building your releases into. However, GH Actions can pretty much do anything. So, there are lots of different ways and places the confused artifacts could be stored.
 ```yaml
 name: My Project
 on:
   workflow_dispatch:
+  push:
+    branches: ["main"]
 
 jobs:
   MyProject-CI:
@@ -60,7 +62,7 @@ jobs:
         run: |
           dotnet test "${{ env.CSPROJ3 }}" --logger "console;verbosity=normal" --no-build --no-restore --configuration Debug
       - name: ConfuserEx CLI Operation
-        uses: JD-Howard/confuser-cli-action@main
+        uses: JD-Howard/confuser-cli-action@v1
         id: confuse-release
         if: steps.build-all.outcome == 'success' && steps.run-tests.outcome == 'success'
         with:
